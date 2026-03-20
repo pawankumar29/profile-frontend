@@ -1,6 +1,7 @@
 import React from 'react';
 
-import './Navbar.css'
+import './GlobalComponent.css'
+
 function Navbar() {
   return (
     <>
