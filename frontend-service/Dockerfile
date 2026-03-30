@@ -2,6 +2,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
+ARG VITE_PROFILE_BACKEND_URL
+ENV VITE_PROFILE_BACKEND_URL=${VITE_PROFILE_BACKEND_URL}
+
 COPY package.json package-lock.json ./
 RUN npm ci
 

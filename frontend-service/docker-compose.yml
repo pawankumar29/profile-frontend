@@ -1,0 +1,15 @@
+services:
+  profile-frontend:
+    container_name: profile-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - portfolio-network
+    restart: always
+
+networks:
+  portfolio-network:
+    external: true
