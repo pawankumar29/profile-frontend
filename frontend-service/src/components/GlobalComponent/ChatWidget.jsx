@@ -4,7 +4,6 @@ import './ChatWidget.css'
 
 const API_BASE = import.meta.env.VITE_PROFILE_BACKEND_URL || 'http://localhost:8009'
 const CHAT_SERVICE_BASE = 'http://localhost:8010'
-const SESSION_KEY = 'chat_session_id'
 const USER_EMAIL_KEY = 'chat_user_email'
 
 function ChatWidget() {
@@ -119,6 +118,7 @@ function ChatWidget() {
       if (!setUserRes.ok) throw new Error('Failed to sync user')
 
       const adminRes = await fetch(`${API_BASE}/api/isAdmin?email=${encodeURIComponent(trimmedEmail)}`)
+      if (!adminRes.ok) throw new Error('Failed to check admin status')
       const adminData = await adminRes.json()
       
       setUserEmail(trimmedEmail)
@@ -290,4 +290,3 @@ function ChatWidget() {
 }
 
 export default ChatWidget
-
