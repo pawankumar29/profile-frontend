@@ -42,6 +42,13 @@ function Navbar() {
 
             <a
               className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
+              href="/payment"
+            >
+              Payment
+            </a>
+
+            <a
+              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
               href="/contact"
             >
               Contact

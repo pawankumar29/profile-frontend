@@ -6,7 +6,7 @@ ARG VITE_PROFILE_BACKEND_URL
 ENV VITE_PROFILE_BACKEND_URL=${VITE_PROFILE_BACKEND_URL}
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build
