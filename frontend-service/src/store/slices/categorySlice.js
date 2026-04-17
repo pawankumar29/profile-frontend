@@ -1,12 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8009';
+import { profileHttp } from '../../lib/api';
 
 export const fetchCategories = createAsyncThunk(
   'category/fetchCategories',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/api/getCategory`);
+      const response = await profileHttp.get('/api/getCategory');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

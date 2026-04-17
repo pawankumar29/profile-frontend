@@ -1,65 +1,57 @@
 import React from 'react';
+import { Link, NavLink } from "react-router-dom";
 
 import './GlobalComponent.css'
 
 function Navbar() {
+  const navItemClass = ({ isActive }) =>
+    [
+      "group text-sm font-medium transition-colors duration-200 hover:text-primary",
+      isActive ? "text-primary" : "text-muted-foreground",
+    ].join(" ");
+
+  const underlineClass = (isActive) =>
+    [
+      "h-0.5 gradient-bg mt-1 rounded-full transition-opacity duration-200",
+      isActive ? "opacity-100" : "opacity-0 group-hover:opacity-50",
+    ].join(" ");
+
+  const NavItem = ({ to, end = false, children }) => (
+    <NavLink className={navItemClass} to={to} end={end}>
+      {({ isActive }) => (
+        <>
+          <span>{children}</span>
+          <div className={underlineClass(isActive)}></div>
+        </>
+      )}
+    </NavLink>
+  );
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           
           {/* Logo */}
-          <a className="font-display text-xl font-bold gradient-text" href="/">
+          <Link className="font-display text-xl font-bold gradient-text" to="/">
             DevPortfolio
-          </a>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            <a
-              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-primary"
-              href="/"
-            >
-              Home
-              <div
-                className="h-0.5 gradient-bg mt-1 rounded-full"
-                style={{ opacity: 1 }}
-              ></div>
-            </a>
+            <NavItem to="/" end>Home</NavItem>
+            <NavItem to="/projects">Projects</NavItem>
+            <NavItem to="/payment">Payment</NavItem>
+            <NavItem to="/contact">Contact</NavItem>
 
-            <a
-              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
-              href="/projects"
-            >
-              Projects
-            </a>
-
-            <a
-              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
-              href="/services"
-            >
-              Services
-            </a>
-
-            <a
-              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
-              href="/payment"
-            >
-              Payment
-            </a>
-
-            <a
-              className="text-sm font-medium transition-colors duration-200 hover:text-primary text-muted-foreground"
-              href="/contact"
-            >
-              Contact
-            </a>
-
-            <a
-              className="gradient-bg px-5 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
-              href="/contact"
+            <NavLink
+              className={() =>
+                "gradient-bg px-5 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+              }
+              to="/contact"
             >
               Hire Me
-            </a>
+            </NavLink>
           </div>
 
           {/* Mobile Menu Button */}

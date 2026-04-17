@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import './AdminChat.css'
-
-const API_BASE = import.meta.env.VITE_PROFILE_BACKEND_URL || 'http://localhost:8009'
-const CHAT_SERVICE_BASE = 'http://localhost:8010'
+import { CHAT_API_BASE, getSocketAuth } from '../lib/api'
+import { USER_EMAIL_KEY, clearStoredAuth } from '../lib/auth'
 
 function AdminChat() {
   const [rooms, setRooms] = useState([])
@@ -12,14 +11,16 @@ function AdminChat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [adminEmail, setAdminEmail] = useState(() => sessionStorage.getItem('chat_user_email') || '')
+  const [adminEmail] = useState(() => sessionStorage.getItem(USER_EMAIL_KEY) || '')
   
   const listRef = useRef(null)
   const socketRef = useRef(null)
 
   // Socket Initialization
   useEffect(() => {
-    socketRef.current = io(CHAT_SERVICE_BASE)
+    socketRef.current = io(CHAT_API_BASE, {
+      auth: getSocketAuth(),
+    })
 
     socketRef.current.on('connect', () => {
       socketRef.current.emit('getRooms')
@@ -43,6 +44,13 @@ function AdminChat() {
       }
     })
 
+    socketRef.current.on('connect_error', (err) => {
+      if (err?.message?.toLowerCase().includes('token')) {
+        clearStoredAuth()
+      }
+      setError('Session expired. Please sign in again.')
+    })
+
     return () => {
       if (socketRef.current) socketRef.current.disconnect()
     }
@@ -50,11 +58,9 @@ function AdminChat() {
 
   useEffect(() => {
     if (activeRoomId && socketRef.current) {
-      setLoading(true)
       socketRef.current.emit('joinRoom', {
         roomId: activeRoomId,
         userEmail: adminEmail,
-        isAdmin: true
       })
     }
   }, [activeRoomId, adminEmail])
@@ -134,6 +140,7 @@ function AdminChat() {
 
             <div className="chat-messages-container" ref={listRef}>
               <div className="messages-bg"></div>
+              {error ? <div className="loading-overlay">{error}</div> : null}
               {messages.map((msg) => (
                 <div
                   key={msg._id}

@@ -20,11 +20,18 @@ If you are developing a production application, we recommend using TypeScript wi
 Q: Local pe frontend chalana ho toh kya karna padega?
 A: `.env` me backend URL set karo:
 `VITE_PROFILE_BACKEND_URL=http://localhost:8009`
+Encrypted auth ke liye same `.env` me public key bhi rakho:
+`VITE_AUTH_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"`
 
 Q: Docker me frontend chalana ho toh kya karna padega?
 A: Same-origin `/api/...` use hota hai, nginx `/api` ko `http://profile-backend:8009` pe proxy karta hai (`nginx.conf`).
 Rebuild:
 `docker compose up -d --build profile-frontend`
+
+Q: Backend me encrypted auth enable karna ho toh kya karna padega?
+A: Backend env me private key do:
+`AUTH_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"`
+Frontend encrypted `x-client-auth` header bhejega, backend private key se decrypt karke JWT verify karega.
 
 Q: Chat connect kyu nahi ho rahi thi?
 A: Browser host machine se request bhejta hai, aur `profile-backend` hostname browser me resolve nahi hota. Isliye same-origin + nginx proxy use kiya.

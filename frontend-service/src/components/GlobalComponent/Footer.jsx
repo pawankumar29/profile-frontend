@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -71,33 +72,33 @@ function Footer() {
               </h4>
 
               <div className="flex flex-col gap-2">
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
                   Home
-                </a>
+                </Link>
 
-                <a
-                  href="/projects"
+                <Link
+                  to="/projects"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
                   Projects
-                </a>
+                </Link>
 
-                <a
-                  href="/services"
+                <Link
+                  to="/payment"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
-                  Services
-                </a>
+                  Payment
+                </Link>
 
-                <a
-                  href="/contact"
+                <Link
+                  to="/contact"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
                   Contact
-                </a>
+                </Link>
               </div>
             </div>
 

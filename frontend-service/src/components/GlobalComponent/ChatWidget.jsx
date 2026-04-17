@@ -1,10 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import './ChatWidget.css'
-
-const API_BASE = import.meta.env.VITE_PROFILE_BACKEND_URL || 'http://localhost:8009'
-const CHAT_SERVICE_BASE = 'http://localhost:8010'
-const USER_EMAIL_KEY = 'chat_user_email'
+import { PROFILE_API_BASE, CHAT_API_BASE, withProfileAuth, getSocketAuth } from '../../lib/api'
+import {
+  USER_EMAIL_KEY,
+  USER_NAME_KEY,
+  USER_COUNTRY_KEY,
+  clearStoredAuth,
+  getStoredAuthPayload,
+  storeAuthSession,
+  USER_PHONE_KEY,
+} from '../../lib/auth'
 
 function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,8 +30,7 @@ function ChatWidget() {
   const [countryInput, setCountryInput] = useState('')
 
   const [userEmail, setUserEmail] = useState(() => sessionStorage.getItem(USER_EMAIL_KEY) || '')
-  const [isIdentified, setIsIdentified] = useState(() => !!sessionStorage.getItem(USER_EMAIL_KEY))
-  const [isAdmin, setIsAdmin] = useState(() => (sessionStorage.getItem('chat_is_admin') === 'true'))
+  const [isIdentified, setIsIdentified] = useState(() => !!getStoredAuthPayload())
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   
   const listRef = useRef(null)
@@ -35,25 +40,20 @@ function ChatWidget() {
   useEffect(() => {
     if (!isIdentified) return
 
-    socketRef.current = io(CHAT_SERVICE_BASE)
+    socketRef.current = io(CHAT_API_BASE, {
+      auth: getSocketAuth(),
+    })
 
     socketRef.current.on('connect', () => {
       socketRef.current.emit('getOnlineUsers')
-      if (isAdmin) {
-        // Admin just wants to see the list first
-        socketRef.current.emit('getRooms')
-      } else {
-        // Regular user instantly joins their own room
-        socketRef.current.emit('joinRoom', {
-          roomId: userEmail,
-          userEmail,
-          userName: sessionStorage.getItem('chat_user_name') || nameInput,
-          userPhone: phoneInput,
-          userCountry: countryInput,
-          isAdmin: false
-        })
-        setActiveRoomId(userEmail)
-      }
+      socketRef.current.emit('joinRoom', {
+        roomId: userEmail,
+        userEmail,
+        userName: sessionStorage.getItem(USER_NAME_KEY) || '',
+        userPhone: sessionStorage.getItem(USER_PHONE_KEY) || '',
+        userCountry: sessionStorage.getItem(USER_COUNTRY_KEY) || '',
+      })
+      setActiveRoomId(userEmail)
     })
 
     socketRef.current.on('onlineUsersList', (list) => {
@@ -70,7 +70,7 @@ function ChatWidget() {
     })
 
     socketRef.current.on('roomList', (list) => {
-      if (isAdmin) setRooms(list)
+      setRooms(list)
     })
 
     socketRef.current.on('messageHistory', (history) => {
@@ -85,10 +85,19 @@ function ChatWidget() {
       })
     })
 
+    socketRef.current.on('connect_error', (err) => {
+      if (err?.message?.toLowerCase().includes('token')) {
+        clearStoredAuth()
+        setIsIdentified(false)
+        setUserEmail('')
+      }
+      setError('Session expired. Please identify yourself again.')
+    })
+
     return () => {
       if (socketRef.current) socketRef.current.disconnect()
     }
-  }, [isIdentified, userEmail, isAdmin])
+  }, [isIdentified, userEmail])
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -104,9 +113,9 @@ function ChatWidget() {
     try {
       setLoading(true)
       
-      const setUserRes = await fetch(`${API_BASE}/api/setUser`, {
+      const setUserRes = await fetch(`${PROFILE_API_BASE}/api/setUser`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await withProfileAuth({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ 
           email: trimmedEmail,
           name: nameInput,
@@ -116,19 +125,19 @@ function ChatWidget() {
       })
       
       if (!setUserRes.ok) throw new Error('Failed to sync user')
+      const setUserData = await setUserRes.json()
 
-      const adminRes = await fetch(`${API_BASE}/api/isAdmin?email=${encodeURIComponent(trimmedEmail)}`)
-      if (!adminRes.ok) throw new Error('Failed to check admin status')
-      const adminData = await adminRes.json()
-      
       setUserEmail(trimmedEmail)
-      setIsAdmin(!!adminData.isAdmin)
       setIsIdentified(true)
-      sessionStorage.setItem(USER_EMAIL_KEY, trimmedEmail)
-      sessionStorage.setItem('chat_user_name', nameInput)
-      sessionStorage.setItem('chat_is_admin', !!adminData.isAdmin ? 'true' : 'false')
+      storeAuthSession({
+        token: setUserData.token,
+        email: trimmedEmail,
+        name: nameInput,
+        phone: phoneInput,
+        country: countryInput,
+      })
       setError('')
-    } catch (err) {
+    } catch {
       setError('Identification failed. Please try again.')
     } finally {
       setLoading(false)
@@ -142,8 +151,7 @@ function ChatWidget() {
     if (socketRef.current) {
       socketRef.current.emit('joinRoom', {
         roomId,
-        userEmail: userEmail,
-        isAdmin: true
+        userEmail,
       })
     }
   }
@@ -156,9 +164,9 @@ function ChatWidget() {
     if (socketRef.current && socketRef.current.connected) {
       socketRef.current.emit('sendMessage', {
         roomId: activeRoomId,
-        senderType: isAdmin ? 'admin' : 'user',
+        senderType: activeRoomId === userEmail ? 'user' : 'admin',
         senderEmail: userEmail,
-        senderName: isAdmin ? 'Admin' : sessionStorage.getItem('chat_user_name') || userEmail,
+        senderName: sessionStorage.getItem(USER_NAME_KEY) || userEmail,
         text: trimmed,
       })
       setInput('')
@@ -210,22 +218,22 @@ function ChatWidget() {
 
       <div className="chat-widget__panel" aria-hidden={!isOpen}>
         <div className="chat-widget__header">
-          {isAdmin && activeRoomId ? (
+          {activeRoomId && activeRoomId !== userEmail ? (
             <button className="chat-widget__back-btn" onClick={() => setActiveRoomId(null)}>← Back to Rooms</button>
           ) : (
-            <div className="chat-widget__avatar">{isAdmin ? 'AD' : 'SU'}</div>
+            <div className="chat-widget__avatar">{activeRoomId && activeRoomId !== userEmail ? 'AD' : 'SU'}</div>
           )}
           
           <div className="chat-widget__header-info">
-            {isAdmin && activeRoomId && activeRoomData ? (
+            {activeRoomId && activeRoomId !== userEmail && activeRoomData ? (
                <>
                  <h3>{activeRoomData.userName} {onlineUsers.has(activeRoomData.userEmail) ? '🟢' : ''}</h3>
                  <p>{activeRoomData.userCountry} | {activeRoomData.userPhone} • {onlineUsers.has(activeRoomData.userEmail) ? 'Online' : 'Offline'}</p>
                </>
             ) : (
                <>
-                 <h3>{isAdmin ? 'Admin Console' : 'Support Chat'}</h3>
-                 <p>{isIdentified ? (onlineUsers.has('admin_general_status') ? '🟢 Support Online' : '⚪ Support Offline') : 'Online'}</p>
+                 <h3>Support Chat</h3>
+                 <p>{isIdentified ? 'Connected' : 'Online'}</p>
                </>
             )}
           </div>
@@ -245,14 +253,14 @@ function ChatWidget() {
             </form>
           </div>
         ) : (
-          isAdmin && !activeRoomId ? (
+          activeRoomId === null ? (
              renderAdminRoomList()
           ) : (
             <>
               <div className="chat-widget__body whatsapp-style" ref={listRef}>
                 {loading && <div style={{textAlign: 'center', padding: '10px'}}>Loading messages...</div>}
                 {messages.map((message) => {
-                  const isMe = (isAdmin && message.senderType === 'admin') || (!isAdmin && message.senderType === 'user');
+                  const isMe = message.senderEmail === userEmail
                   return (
                     <div
                       key={message._id}
