@@ -23,28 +23,22 @@ const buildHeaders = async (apiKey, headers = {}, useEncryptedAuth = false) => {
   const nextHeaders = { ...headers }
   const token = getStoredAuthToken()
 
-  if (token) {
-    if (useEncryptedAuth) {
-      const encryptedHeaders = await buildEncryptedAuthHeaders(nextHeaders)
-      if (apiKey) {
-        encryptedHeaders['x-api-key'] = apiKey
-      }
-      return encryptedHeaders
-    }
+  // Standard API key handling
+  if (apiKey) {
+    nextHeaders['x-api-key'] = apiKey
+  }
 
+  // legacy token handling for other services (Chat/Payment)
+  if (token && !useEncryptedAuth) {
     nextHeaders.Authorization = `Bearer ${token}`
   }
 
-  if (!apiKey) {
-    return nextHeaders
-  }
-
-  nextHeaders['x-api-key'] = apiKey
   return nextHeaders
 }
 
 export const profileHttp = axios.create({
   baseURL: PROFILE_API_BASE,
+  withCredentials: true, // Crucial for Level-3 Cookie Security
 })
 
 export const chatHttp = axios.create({
@@ -62,11 +56,12 @@ const attachAuthInterceptor = (client, apiKey, useEncryptedAuth = false) => {
   })
 }
 
-attachAuthInterceptor(profileHttp, PROFILE_API_KEY, true)
+// Profile service now uses HttpOnly cookies (no manual header encryption needed)
+attachAuthInterceptor(profileHttp, PROFILE_API_KEY, false)
 attachAuthInterceptor(chatHttp, CHAT_API_KEY)
 attachAuthInterceptor(paymentHttp, PAYMENT_API_KEY)
 
-export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, headers, true)
+export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, headers, false)
 export const withChatAuth = (headers = {}) => buildHeaders(CHAT_API_KEY, headers)
 export const withPaymentAuth = (headers = {}) => buildHeaders(PAYMENT_API_KEY, headers)
 export const getSocketAuth = () => {

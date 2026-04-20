@@ -19,10 +19,17 @@ const userSlice = createSlice({
     adminData: null,
     loading: false,
     error: null,
+    isInitialized: false, // Tracks if we HAVE a valid usable session
+    authCheckAttempted: false, // Tracks if we have at least TRIED to initialize
   },
   reducers: {
     clearUser: (state) => {
       state.adminData = null;
+      state.isInitialized = false;
+      state.authCheckAttempted = false;
+    },
+    setInitialized: (state, action) => {
+      state.isInitialized = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -34,13 +41,17 @@ const userSlice = createSlice({
       .addCase(fetchAdminUser.fulfilled, (state, action) => {
         state.loading = false;
         state.adminData = action.payload;
+        state.isInitialized = true;
+        state.authCheckAttempted = true;
       })
       .addCase(fetchAdminUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch admin user';
+        state.isInitialized = false;
+        state.authCheckAttempted = true;
       });
   },
 });
 
-export const { clearUser } = userSlice.actions;
+export const { clearUser, setInitialized } = userSlice.actions;
 export default userSlice.reducer;

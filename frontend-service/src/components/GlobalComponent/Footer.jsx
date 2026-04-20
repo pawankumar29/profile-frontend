@@ -1,38 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { PROFILE_API_BASE, profileHttp } from "../../lib/api";
-import { getStoredAuthToken } from "../../lib/auth";
+import { useSelector } from "react-redux";
 
 function Footer() {
-  const [admin, setAdmin] = useState(null);
+  const { adminData: admin } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      // If encryption is on, we need a token before we can call /getAdmin. 
-      // If no token exists yet, we wait for SessionInitializer to finish.
-      if (!getStoredAuthToken()) {
-        const onSessionReady = () => {
-          fetchAdmin();
-          window.removeEventListener('session-ready', onSessionReady);
-        };
-        window.addEventListener('session-ready', onSessionReady);
-        return;
-      }
-
-      try {
-        const res = await profileHttp.get("/api/getAdmin");
-        setAdmin(res.data);
-      } catch (err) {
-        console.error("Failed to fetch admin for footer", err);
-      }
-    };
-    fetchAdmin();
-
-    return () => {
-      // Cleanup in case component unmounts while waiting
-      window.removeEventListener('session-ready', fetchAdmin); 
-    };
-  }, []);
+  const socialLinksList = useMemo(() => {
+    if (!admin?.socialLinks) return [];
+    return Object.entries(admin.socialLinks).map(([platform, url]) => ({
+      platform,
+      url,
+      id: `${platform}-${url}`
+    }));
+  }, [admin?.socialLinks]);
 
   return (
     <>
@@ -54,9 +34,9 @@ function Footer() {
 
               {/* Social Links */}
               <div className="flex gap-4 mt-4">
-                {admin?.socialLinks && Object.entries(admin.socialLinks).map(([platform, url]) => (
+                {socialLinksList.map(({ platform, url, id }) => (
                   <a
-                    key={platform}
+                    key={id}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"

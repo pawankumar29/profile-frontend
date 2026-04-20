@@ -1,50 +1,37 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { PROFILE_API_BASE, profileHttp, withProfileAuth } from '../../lib/api'
-import { getStoredAuthToken, storeAuthSession } from '../../lib/auth'
 import { fetchCategories } from '../../store/slices/categorySlice'
 
 function Hero_two() {
   const dispatch = useDispatch()
   const { list, loading, error } = useSelector((state) => state.category)
+  const { isInitialized } = useSelector((state) => state.user)
   const [selectedCategoryId, setSelectedCategoryId] = useState("all")
   const [projects, setProjects] = useState([])
   const [projectsLoading, setProjectsLoading] = useState(false)
   const [projectsError, setProjectsError] = useState(null)
 
+  // 1. Initial Load: Sequence categories and then projects
   useEffect(() => {
-    let isMounted = true;
+    if (!isInitialized) return;
 
-    const loadCategories = () => {
-      // If we already have a token, just fetch
-      if (getStoredAuthToken()) {
-        if (isMounted && list.length === 0) {
-          dispatch(fetchCategories());
-        }
-      } else {
-        // Otherwise wait for the global session to be ready
-        const onSessionReady = () => {
-          if (isMounted && list.length === 0) {
-            dispatch(fetchCategories());
-          }
-          window.removeEventListener('session-ready', onSessionReady);
-        };
-        window.addEventListener('session-ready', onSessionReady);
+    const initData = async () => {
+      // Fetch categories if they aren't loaded yet
+      if (list.length === 0) {
+        await dispatch(fetchCategories());
       }
+      // Initial projects load
+      loadProjects("all");
     };
 
-    loadCategories();
+    initData();
+  }, [dispatch, isInitialized, list.length]);
 
-    return () => {
-      isMounted = false;
-      window.removeEventListener('session-ready', loadCategories);
-    };
-  }, [dispatch, list.length]);
-
-  const categories = [
+  const categories = useMemo(() => [
     { id: 'all', type: 'All' },
     ...list,
-  ]
+  ], [list]);
 
   const categoryById = useMemo(() => {
     const map = new Map()
@@ -53,6 +40,8 @@ function Hero_two() {
   }, [list])
 
   const loadProjects = async (categoryId) => {
+    if (!isInitialized) return; // Guard clause
+    
     setProjectsError(null)
     setProjectsLoading(true)
     try {
@@ -73,14 +62,6 @@ function Hero_two() {
       setProjectsLoading(false)
     }
   }
-
-  useEffect(() => {
-    // only load projects once we have a list of categories (which means auth is ready)
-    // or if we're on the initial mount and list might be empty but we want to try anyway
-    if (list.length > 0 || !loading) {
-       loadProjects("all")
-    }
-  }, [list.length, loading])
 
   return (
     <div>
