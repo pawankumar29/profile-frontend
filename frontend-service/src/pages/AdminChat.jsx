@@ -45,10 +45,13 @@ function AdminChat() {
     })
 
     socketRef.current.on('connect_error', (err) => {
+      console.error('Admin Socket Connect Error:', err)
       if (err?.message?.toLowerCase().includes('token')) {
         clearStoredAuth()
+        setError('Session expired. Please sign in again.')
+      } else {
+        setError(`Admin Connection Error: ${err.message}`)
       }
-      setError('Session expired. Please sign in again.')
     })
 
     return () => {

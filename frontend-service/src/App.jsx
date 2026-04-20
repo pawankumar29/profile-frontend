@@ -13,6 +13,7 @@ import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel from './pages/PaymentCancel'
 import { hasValidSession } from './lib/auth'
 import ContactPage from './pages/contact'
+import SessionInitializer from './components/GlobalComponent/SessionInitializer'
 
 
 
@@ -27,6 +28,7 @@ function ProtectedAdminRoute({ children }) {
 function App() {
   return (
     <Router>
+      <SessionInitializer />
       <div className="min-h-screen flex flex-col">
         <Routes>
           <Route path="/" element={<Home />} />

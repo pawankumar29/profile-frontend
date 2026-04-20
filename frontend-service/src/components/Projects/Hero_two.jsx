@@ -13,52 +13,33 @@ function Hero_two() {
   const [projectsError, setProjectsError] = useState(null)
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
-    const loadCategories = async () => {
-      try {
-        let token = getStoredAuthToken()
-
-        if (!token) {
-          const response = await fetch(`${PROFILE_API_BASE}/api/setUser`, {
-            method: 'POST',
-            headers: await withProfileAuth({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({}),
-          })
-
-          if (!response.ok) {
-            throw new Error('Failed to initialize auth session')
+    const loadCategories = () => {
+      // If we already have a token, just fetch
+      if (getStoredAuthToken()) {
+        if (isMounted && list.length === 0) {
+          dispatch(fetchCategories());
+        }
+      } else {
+        // Otherwise wait for the global session to be ready
+        const onSessionReady = () => {
+          if (isMounted && list.length === 0) {
+            dispatch(fetchCategories());
           }
-
-          const data = await response.json()
-          if (!isMounted) return
-
-          storeAuthSession({
-            token: data.token,
-            email: data.user?.email,
-            name: data.user?.firstName ? `${data.user.firstName} ${data.user.lastName || ''}`.trim() : '',
-            phone: data.user?.phone || '',
-            country: data.user?.country || '',
-          })
-          token = data.token
-        }
-
-        if (token && isMounted) {
-          dispatch(fetchCategories())
-        }
-      } catch (fetchError) {
-        console.error('Failed to load categories in Hero_two', fetchError)
+          window.removeEventListener('session-ready', onSessionReady);
+        };
+        window.addEventListener('session-ready', onSessionReady);
       }
-    }
+    };
 
-    if (list.length === 0) {
-      loadCategories()
-    }
+    loadCategories();
 
     return () => {
-      isMounted = false
-    }
-  }, [dispatch, list.length])
+      isMounted = false;
+      window.removeEventListener('session-ready', loadCategories);
+    };
+  }, [dispatch, list.length]);
 
   const categories = [
     { id: 'all', type: 'All' },
@@ -94,10 +75,12 @@ function Hero_two() {
   }
 
   useEffect(() => {
-    // initial load for All
-    loadProjects("all")
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    // only load projects once we have a list of categories (which means auth is ready)
+    // or if we're on the initial mount and list might be empty but we want to try anyway
+    if (list.length > 0 || !loading) {
+       loadProjects("all")
+    }
+  }, [list.length, loading])
 
   return (
     <div>

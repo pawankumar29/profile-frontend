@@ -1,7 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { PROFILE_API_BASE, profileHttp } from "../../lib/api";
+import { getStoredAuthToken } from "../../lib/auth";
 
 function Footer() {
+  const [admin, setAdmin] = useState(null);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      // If encryption is on, we need a token before we can call /getAdmin. 
+      // If no token exists yet, we wait for SessionInitializer to finish.
+      if (!getStoredAuthToken()) {
+        const onSessionReady = () => {
+          fetchAdmin();
+          window.removeEventListener('session-ready', onSessionReady);
+        };
+        window.addEventListener('session-ready', onSessionReady);
+        return;
+      }
+
+      try {
+        const res = await profileHttp.get("/api/getAdmin");
+        setAdmin(res.data);
+      } catch (err) {
+        console.error("Failed to fetch admin for footer", err);
+      }
+    };
+    fetchAdmin();
+
+    return () => {
+      // Cleanup in case component unmounts while waiting
+      window.removeEventListener('session-ready', fetchAdmin); 
+    };
+  }, []);
+
   return (
     <>
       <footer className="border-t border-border/50 bg-card/30">
@@ -12,7 +44,7 @@ function Footer() {
             {/* Brand Section */}
             <div className="md:col-span-2">
               <h3 className="font-display text-lg font-bold gradient-text mb-3">
-                DevPortfolio
+                {admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : "DevPortfolio"}
               </h3>
 
               <p className="text-muted-foreground text-sm max-w-md">
@@ -22,46 +54,24 @@ function Footer() {
 
               {/* Social Links */}
               <div className="flex gap-4 mt-4">
-                <a
-                  href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                {admin?.socialLinks && Object.entries(admin.socialLinks).map(([platform, url]) => (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors capitalise"
+                    title={platform}
                   >
-                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
-                    <path d="M9 18c-4.51 2-5-2-7-2"></path>
-                  </svg>
-                </a>
-
-                <a
-                  href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                    <rect width="4" height="12" x="2" y="9"></rect>
-                    <circle cx="4" cy="4" r="2"></circle>
-                  </svg>
-                </a>
+                    {platform.toLowerCase() === 'github' ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+                    ) : platform.toLowerCase() === 'linkedin' ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    ) : (
+                      <span className="text-xs uppercase">{platform.slice(0, 2)}</span>
+                    )}
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -109,9 +119,9 @@ function Footer() {
               </h4>
 
               <div className="flex flex-col gap-2 text-muted-foreground text-sm">
-                <span>pk2027317@gmail.com</span>
-                <span>+91 7740073757</span>
-                <span>Chandigarh,India</span>
+                <span>{admin?.email || "pk2027317@gmail.com"}</span>
+                <span>{admin?.phone || "+91 7740073757"}</span>
+                <span>{admin?.country || "Chandigarh, India"}</span>
               </div>
             </div>
 

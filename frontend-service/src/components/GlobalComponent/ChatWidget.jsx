@@ -10,6 +10,7 @@ import {
   getStoredAuthPayload,
   storeAuthSession,
   USER_PHONE_KEY,
+  USER_IS_ADMIN_KEY,
 } from '../../lib/auth'
 
 function ChatWidget() {
@@ -31,6 +32,7 @@ function ChatWidget() {
 
   const [userEmail, setUserEmail] = useState(() => sessionStorage.getItem(USER_EMAIL_KEY) || '')
   const [isIdentified, setIsIdentified] = useState(() => !!getStoredAuthPayload())
+  const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(USER_IS_ADMIN_KEY) === 'true')
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   
   const listRef = useRef(null)
@@ -46,14 +48,22 @@ function ChatWidget() {
 
     socketRef.current.on('connect', () => {
       socketRef.current.emit('getOnlineUsers')
-      socketRef.current.emit('joinRoom', {
-        roomId: userEmail,
-        userEmail,
-        userName: sessionStorage.getItem(USER_NAME_KEY) || '',
-        userPhone: sessionStorage.getItem(USER_PHONE_KEY) || '',
-        userCountry: sessionStorage.getItem(USER_COUNTRY_KEY) || '',
-      })
-      setActiveRoomId(userEmail)
+      
+      if (isAdmin) {
+        // Admins don't join their own room, they fetch all rooms
+        socketRef.current.emit('getRooms')
+        setActiveRoomId(null)
+      } else {
+        // Normal users join their own room immediately
+        socketRef.current.emit('joinRoom', {
+          roomId: userEmail,
+          userEmail,
+          userName: sessionStorage.getItem(USER_NAME_KEY) || '',
+          userPhone: sessionStorage.getItem(USER_PHONE_KEY) || '',
+          userCountry: sessionStorage.getItem(USER_COUNTRY_KEY) || '',
+        })
+        setActiveRoomId(userEmail)
+      }
     })
 
     socketRef.current.on('onlineUsersList', (list) => {
@@ -86,12 +96,15 @@ function ChatWidget() {
     })
 
     socketRef.current.on('connect_error', (err) => {
+      console.error('Admin Socket Connect Error:', err)
       if (err?.message?.toLowerCase().includes('token')) {
         clearStoredAuth()
         setIsIdentified(false)
         setUserEmail('')
+        setError('Session expired. Please identify yourself again.')
+      } else {
+        setError(`Connection Error: ${err.message}`)
       }
-      setError('Session expired. Please identify yourself again.')
     })
 
     return () => {
@@ -129,12 +142,15 @@ function ChatWidget() {
 
       setUserEmail(trimmedEmail)
       setIsIdentified(true)
+      setIsAdmin(setUserData.user?.isAdmin || false)
+      
       storeAuthSession({
         token: setUserData.token,
         email: trimmedEmail,
         name: nameInput,
         phone: phoneInput,
         country: countryInput,
+        isAdmin: setUserData.user?.isAdmin || false
       })
       setError('')
     } catch {

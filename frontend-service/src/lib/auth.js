@@ -3,6 +3,7 @@ const USER_EMAIL_KEY = 'chat_user_email'
 const USER_NAME_KEY = 'chat_user_name'
 const USER_PHONE_KEY = 'chat_user_phone'
 const USER_COUNTRY_KEY = 'chat_user_country'
+const USER_IS_ADMIN_KEY = 'chat_user_is_admin'
 
 const isBrowser = typeof window !== 'undefined'
 
@@ -38,6 +39,7 @@ export const clearStoredAuth = () => {
   sessionStorage.removeItem(USER_NAME_KEY)
   sessionStorage.removeItem(USER_PHONE_KEY)
   sessionStorage.removeItem(USER_COUNTRY_KEY)
+  sessionStorage.removeItem(USER_IS_ADMIN_KEY)
 }
 
 export const getStoredAuthToken = () => {
@@ -61,7 +63,7 @@ export const getStoredAuthPayload = () => {
   return decodeJwtPayload(token)
 }
 
-export const storeAuthSession = ({ token, email, name, phone, country }) => {
+export const storeAuthSession = ({ token, email, name, phone, country, isAdmin }) => {
   if (!isBrowser || !token) return
 
   sessionStorage.setItem(AUTH_TOKEN_KEY, token)
@@ -69,8 +71,9 @@ export const storeAuthSession = ({ token, email, name, phone, country }) => {
   if (typeof name === 'string') sessionStorage.setItem(USER_NAME_KEY, name)
   if (typeof phone === 'string') sessionStorage.setItem(USER_PHONE_KEY, phone)
   if (typeof country === 'string') sessionStorage.setItem(USER_COUNTRY_KEY, country)
+  if (typeof isAdmin !== 'undefined') sessionStorage.setItem(USER_IS_ADMIN_KEY, String(isAdmin))
 }
 
 export const hasValidSession = () => !!getStoredAuthPayload()
 
-export { AUTH_TOKEN_KEY, USER_EMAIL_KEY, USER_NAME_KEY, USER_PHONE_KEY, USER_COUNTRY_KEY }
+export { AUTH_TOKEN_KEY, USER_EMAIL_KEY, USER_NAME_KEY, USER_PHONE_KEY, USER_COUNTRY_KEY, USER_IS_ADMIN_KEY }
