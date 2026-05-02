@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink } from "react-router-dom";
 
 import './GlobalComponent.css'
@@ -27,9 +27,25 @@ const NavItem = React.memo(({ to, end = false, children }) => (
 ));
 
 function Navbar() {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const hireMeClass = useCallback(() => 
     "gradient-bg px-5 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
   , []);
+
+  const mobileLinkClass = useMemo(
+    () =>
+      "block w-full px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-secondary transition-colors",
+    []
+  );
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setIsMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <>
@@ -57,7 +73,13 @@ function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden text-foreground">
+          <button
+            type="button"
+            className="md:hidden text-foreground"
+            aria-label="Toggle menu"
+            aria-expanded={isMobileOpen}
+            onClick={() => setIsMobileOpen((v) => !v)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -77,6 +99,55 @@ function Navbar() {
           </button>
 
         </div>
+
+        {/* Mobile Menu Panel */}
+        {isMobileOpen ? (
+          <div className="md:hidden border-t border-border/40">
+            <div className="container mx-auto px-6 py-4">
+              <div className="glass rounded-2xl p-2">
+                <NavLink
+                  className={mobileLinkClass}
+                  to="/"
+                  onClick={() => setIsMobileOpen(false)}
+                  end
+                >
+                  Home
+                </NavLink>
+                <NavLink
+                  className={mobileLinkClass}
+                  to="/projects"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  Projects
+                </NavLink>
+                <NavLink
+                  className={mobileLinkClass}
+                  to="/payment"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  Payment
+                </NavLink>
+                <NavLink
+                  className={mobileLinkClass}
+                  to="/contact"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  Contact
+                </NavLink>
+
+                <div className="mt-2 px-2 pb-2">
+                  <NavLink
+                    className={hireMeClass}
+                    to="/contact"
+                    onClick={() => setIsMobileOpen(false)}
+                  >
+                    Hire Me
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </nav>
     </>
   );

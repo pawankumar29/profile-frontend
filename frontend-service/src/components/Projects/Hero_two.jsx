@@ -142,6 +142,30 @@ function Hero_two() {
                         {project.blog}
                       </p>
                     ) : null}
+
+                    {project.skills ? (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {(() => {
+                          const raw = project.skills
+                          let skillsArr = []
+                          if (Array.isArray(raw)) skillsArr = raw
+                          else if (typeof raw === "string") {
+                            try {
+                              const parsed = JSON.parse(raw)
+                              if (Array.isArray(parsed)) skillsArr = parsed
+                            } catch {}
+                          }
+                          return skillsArr.slice(0, 8).map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2 py-1 rounded-md text-[11px] leading-none glass text-muted-foreground border border-border/40"
+                            >
+                              {skill}
+                            </span>
+                          ))
+                        })()}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )
