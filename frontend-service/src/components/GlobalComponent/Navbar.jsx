@@ -61,7 +61,7 @@ function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <NavItem to="/" end>Home</NavItem>
             <NavItem to="/projects">Projects</NavItem>
-            <NavItem to="/payment">Payment</NavItem>
+            {/* <NavItem to="/payment">Payment</NavItem> */}
             <NavItem to="/contact">Contact</NavItem>
 
             <NavLink
