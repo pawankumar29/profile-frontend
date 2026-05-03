@@ -76,12 +76,12 @@ function Footer() {
                   Projects
                 </Link>
 
-                <Link
+                {/* <Link
                   to="/payment"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
                   Payment
-                </Link>
+                </Link> */}
 
                 <Link
                   to="/contact"
