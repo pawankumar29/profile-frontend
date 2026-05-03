@@ -33,7 +33,7 @@ function Footer() {
               </p>
 
               {/* Social Links */}
-              <div className="flex gap-4 mt-4">
+              {/* <div className="flex gap-4 mt-4">
                 {socialLinksList.map(({ platform, url, id }) => (
                   <a
                     key={id}
@@ -52,7 +52,7 @@ function Footer() {
                     )}
                   </a>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* Pages */}
@@ -99,8 +99,7 @@ function Footer() {
               </h4>
 
               <div className="flex flex-col gap-2 text-muted-foreground text-sm">
-                <span>{admin?.email || "pk2027317@gmail.com"}</span>
-                <span>{admin?.phone || "+91 7740073757"}</span>
+                {admin?.email ? <span>{admin.email}</span> : null}
                 <span>{admin?.country || "Chandigarh, India"}</span>
               </div>
             </div>

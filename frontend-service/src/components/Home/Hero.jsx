@@ -63,7 +63,7 @@ function Hero() {
                   </a>
                 </div>
               </div>
-
+{/* 
               <div className="flex justify-center lg:justify-end">
                 <div className="glass rounded-3xl p-4 border border-border/40 max-w-[420px] w-full">
                   <img
@@ -73,7 +73,7 @@ function Hero() {
                     loading="lazy"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

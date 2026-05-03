@@ -5,8 +5,8 @@ import Footer from "../components/GlobalComponent/Footer";
 const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState('49.99');
-  const [email, setEmail] = useState('coderpawan24@gmail.com');
-  const [phone, setPhone] = useState('+917740073757');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
 
   const handlePayment = async () => {
     setLoading(true);
@@ -16,7 +16,7 @@ const Payment = () => {
         amount: parseFloat(amount),
         currency: 'USD',
         customerEmail: email,
-        whatsappTo: phone
+        ...(phone ? { whatsappTo: phone } : {})
       });
       
       const { checkoutUrl, sessionId } = res.data;
