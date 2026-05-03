@@ -102,7 +102,7 @@ function Contact() {
                         </div>
                     </div>
 
-                    <a href={`https://wa.me/${admin?.phone?.replace(/\D/g, '') || '15551234567'}`} target="_blank" rel="noopener noreferrer" className="glass rounded-xl p-4 flex items-center gap-4 hover:glow transition-shadow group">
+                    {/* <a href={`https://wa.me/${admin?.phone?.replace(/\D/g, '') || '15551234567'}`} target="_blank" rel="noopener noreferrer" className="glass rounded-xl p-4 flex items-center gap-4 hover:glow transition-shadow group">
                         <div className="bg-accent w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle text-primary-foreground">
                                 <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
@@ -112,7 +112,7 @@ function Contact() {
                             <p className="text-xs text-muted-foreground">Live Chat</p>
                             <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Chat on WhatsApp</p>
                         </div>
-                    </a>
+                    </a> */}
                 </div>
 
                 {/* Contact Form */}
