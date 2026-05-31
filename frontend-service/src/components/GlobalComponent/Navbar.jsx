@@ -120,13 +120,13 @@ function Navbar() {
                 >
                   Projects
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   className={mobileLinkClass}
                   to="/payment"
                   onClick={() => setIsMobileOpen(false)}
                 >
                   Payment
-                </NavLink>
+                </NavLink> */}
                 <NavLink
                   className={mobileLinkClass}
                   to="/contact"
