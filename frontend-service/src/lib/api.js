@@ -5,15 +5,15 @@ import { buildEncryptedAuthHeaders } from './auth-crypto'
 export const PROFILE_API_BASE =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_PROFILE_BACKEND_URL ||
-  'http://localhost:8009'
+  'http://profile-backend:8009'
 
 export const CHAT_API_BASE =
   import.meta.env.VITE_CHAT_SERVICE_URL ||
-  'http://localhost:8010'
+  'http://chat-service:8010'
 
 export const PAYMENT_API_BASE =
   import.meta.env.VITE_PAYMENT_SERVICE_URL ||
-  'http://localhost:8011'
+  'http://payment-service:8011'
 
 const PROFILE_API_KEY = import.meta.env.VITE_PROFILE_API_KEY || ''
 const CHAT_API_KEY = import.meta.env.VITE_CHAT_API_KEY || ''
