@@ -11,14 +11,14 @@ import ChatWidget from './components/GlobalComponent/ChatWidget'
 import Payment from './pages/Payment'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel from './pages/PaymentCancel'
-import { hasValidSession } from './lib/auth'
+import { hasStoredUserSession } from './lib/auth'
 import ContactPage from './pages/contact'
 import SessionInitializer from './components/GlobalComponent/SessionInitializer'
 
 
 
 function ProtectedAdminRoute({ children }) {
-  if (!hasValidSession()) {
+  if (!hasStoredUserSession()) {
     return <Navigate to="/" replace />
   }
 

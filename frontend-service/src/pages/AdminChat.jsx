@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import './AdminChat.css'
 import { CHAT_API_BASE, getSocketAuth } from '../lib/api'
-import { USER_EMAIL_KEY, clearStoredAuth } from '../lib/auth'
+import { USER_EMAIL_KEY } from '../lib/auth'
 
 function AdminChat() {
   const [rooms, setRooms] = useState([])
@@ -46,12 +46,7 @@ function AdminChat() {
 
     socketRef.current.on('connect_error', (err) => {
       console.error('Admin Socket Connect Error:', err)
-      if (err?.message?.toLowerCase().includes('token')) {
-        clearStoredAuth()
-        setError('Session expired. Please sign in again.')
-      } else {
-        setError(`Admin Connection Error: ${err.message}`)
-      }
+      setError(`Admin Connection Error: ${err.message}`)
     })
 
     return () => {

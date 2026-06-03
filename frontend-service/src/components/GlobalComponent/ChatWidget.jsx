@@ -6,8 +6,7 @@ import {
   USER_EMAIL_KEY,
   USER_NAME_KEY,
   USER_COUNTRY_KEY,
-  clearStoredAuth,
-  getStoredAuthPayload,
+  hasStoredUserSession,
   storeAuthSession,
   USER_PHONE_KEY,
   USER_IS_ADMIN_KEY,
@@ -31,7 +30,7 @@ function ChatWidget() {
   const [countryInput, setCountryInput] = useState('')
 
   const [userEmail, setUserEmail] = useState(() => sessionStorage.getItem(USER_EMAIL_KEY) || '')
-  const [isIdentified, setIsIdentified] = useState(() => !!getStoredAuthPayload())
+  const [isIdentified, setIsIdentified] = useState(() => hasStoredUserSession())
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem(USER_IS_ADMIN_KEY) === 'true')
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   
@@ -97,14 +96,7 @@ function ChatWidget() {
 
     socketRef.current.on('connect_error', (err) => {
       console.error('Admin Socket Connect Error:', err)
-      if (err?.message?.toLowerCase().includes('token')) {
-        clearStoredAuth()
-        setIsIdentified(false)
-        setUserEmail('')
-        setError('Session expired. Please identify yourself again.')
-      } else {
-        setError(`Connection Error: ${err.message}`)
-      }
+      setError(`Connection Error: ${err.message}`)
     })
 
     return () => {
@@ -145,7 +137,6 @@ function ChatWidget() {
       setIsAdmin(setUserData.user?.isAdmin || false)
       
       storeAuthSession({
-        token: setUserData.token,
         email: trimmedEmail,
         name: nameInput,
         phone: phoneInput,

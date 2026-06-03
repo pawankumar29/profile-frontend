@@ -1,6 +1,4 @@
 import axios from 'axios'
-import { getStoredAuthToken } from './auth'
-import { buildEncryptedAuthHeaders } from './auth-crypto'
 
 export const PROFILE_API_BASE =
   import.meta.env.VITE_API_URL ||
@@ -19,18 +17,11 @@ const PROFILE_API_KEY = import.meta.env.VITE_PROFILE_API_KEY || ''
 const CHAT_API_KEY = import.meta.env.VITE_CHAT_API_KEY || ''
 const PAYMENT_API_KEY = import.meta.env.VITE_PAYMENT_API_KEY || ''
 
-const buildHeaders = async (apiKey, headers = {}, useEncryptedAuth = false) => {
+const buildHeaders = async (apiKey, headers = {}) => {
   const nextHeaders = { ...headers }
-  const token = getStoredAuthToken()
 
-  // Standard API key handling
   if (apiKey) {
     nextHeaders['x-api-key'] = apiKey
-  }
-
-  // legacy token handling for other services (Chat/Payment)
-  if (token && !useEncryptedAuth) {
-    nextHeaders.Authorization = `Bearer ${token}`
   }
 
   return nextHeaders
@@ -38,7 +29,6 @@ const buildHeaders = async (apiKey, headers = {}, useEncryptedAuth = false) => {
 
 export const profileHttp = axios.create({
   baseURL: PROFILE_API_BASE,
-  withCredentials: true, // Crucial for Level-3 Cookie Security
 })
 
 export const chatHttp = axios.create({
@@ -49,22 +39,18 @@ export const paymentHttp = axios.create({
   baseURL: PAYMENT_API_BASE,
 })
 
-const attachAuthInterceptor = (client, apiKey, useEncryptedAuth = false) => {
+const attachAuthInterceptor = (client, apiKey) => {
   client.interceptors.request.use(async (config) => {
-    config.headers = await buildHeaders(apiKey, config.headers || {}, useEncryptedAuth)
+    config.headers = await buildHeaders(apiKey, config.headers || {})
     return config
   })
 }
 
-// Profile service now uses HttpOnly cookies (no manual header encryption needed)
-attachAuthInterceptor(profileHttp, PROFILE_API_KEY, false)
+attachAuthInterceptor(profileHttp, PROFILE_API_KEY)
 attachAuthInterceptor(chatHttp, CHAT_API_KEY)
 attachAuthInterceptor(paymentHttp, PAYMENT_API_KEY)
 
-export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, headers, false)
+export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, headers)
 export const withChatAuth = (headers = {}) => buildHeaders(CHAT_API_KEY, headers)
 export const withPaymentAuth = (headers = {}) => buildHeaders(PAYMENT_API_KEY, headers)
-export const getSocketAuth = () => {
-  const token = getStoredAuthToken()
-  return token ? { token } : {}
-}
+export const getSocketAuth = () => ({})

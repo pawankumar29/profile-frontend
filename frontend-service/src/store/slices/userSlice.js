@@ -19,8 +19,8 @@ const userSlice = createSlice({
     adminData: null,
     loading: false,
     error: null,
-    isInitialized: false, // Tracks if we HAVE a valid usable session
-    authCheckAttempted: false, // Tracks if we have at least TRIED to initialize
+    isInitialized: false,
+    authCheckAttempted: false,
   },
   reducers: {
     clearUser: (state) => {
