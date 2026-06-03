@@ -19,6 +19,20 @@ import {
 
 function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const appendLocalSystemMessage = (text) => {
+    const sysMsg = {
+      _id: `sys-${Date.now()}`,
+      roomId: activeRoomId,
+      senderType: "admin",
+      senderName: "Support Bot",
+      senderEmail: "support@automated",
+      text,
+      createdAt: new Date().toISOString(),
+      auto: true,
+    };
+    setMessages((prev) => [...prev, sysMsg]);
+  };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,9 +62,13 @@ function ChatWidget() {
     () => sessionStorage.getItem(USER_IS_ADMIN_KEY) === "true",
   );
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [isTyping, setIsTyping] = useState(false);
 
   const listRef = useRef(null);
   const socketRef = useRef(null);
+  const typingTimerRef = useRef(null);
+  const pendingReplyTimerRef = useRef(null);
+  const lastTypingAutoSentRef = useRef(0);
 
   // Socket Initialization
   useEffect(() => {
@@ -105,6 +123,11 @@ function ChatWidget() {
     socketRef.current.on("newMessage", (msg) => {
       setMessages((prev) => {
         if (prev.find((m) => m._id === msg._id)) return prev;
+        // If admin replied, clear any pending auto-reply timers
+        if (msg.senderType === "admin" && pendingReplyTimerRef.current) {
+          clearTimeout(pendingReplyTimerRef.current);
+          pendingReplyTimerRef.current = null;
+        }
         return [...prev, msg];
       });
     });
@@ -124,6 +147,15 @@ function ChatWidget() {
     if (!listRef.current) return;
     listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, isOpen, activeRoomId]);
+
+  // Clear timers on unmount or when activeRoomId changes
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      if (pendingReplyTimerRef.current)
+        clearTimeout(pendingReplyTimerRef.current);
+    };
+  }, [activeRoomId]);
 
   const handleIdentification = async (e) => {
     e.preventDefault();
@@ -216,6 +248,16 @@ function ChatWidget() {
         text: trimmed,
       });
       setInput("");
+      // start pending-reply timer for user messages (auto-reply if no admin response)
+      if (!isAdmin) {
+        if (pendingReplyTimerRef.current)
+          clearTimeout(pendingReplyTimerRef.current);
+        pendingReplyTimerRef.current = setTimeout(() => {
+          appendLocalSystemMessage(
+            "Thanks for connecting — we will reply to you soon. We have saved your message.",
+          );
+        }, 60 * 1000);
+      }
     } else {
       setError("Connection lost. Please refresh.");
     }
@@ -405,6 +447,23 @@ function ChatWidget() {
                   </div>
                 );
               })}
+              {isTyping && (
+                <div className={`chat-widget__bubble user typing me`}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      marginBottom: "2px",
+                      color: "rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    {sessionStorage.getItem(USER_NAME_KEY) || userEmail}
+                  </div>
+                  <p>
+                    typing<span className="typing-dots">...</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             <form
@@ -414,7 +473,27 @@ function ChatWidget() {
               <input
                 type="text"
                 value={input}
-                onChange={(event) => setInput(event.target.value)}
+                onChange={(event) => {
+                  const v = event.target.value;
+                  setInput(v);
+                  // typing debounce: if user stops typing for 40s, send auto-message
+                  if (!isAdmin) {
+                    setIsTyping(true);
+                    if (typingTimerRef.current)
+                      clearTimeout(typingTimerRef.current);
+                    typingTimerRef.current = setTimeout(() => {
+                      setIsTyping(false);
+                      const now = Date.now();
+                      // avoid spamming auto messages more than once per 30s
+                      if (now - lastTypingAutoSentRef.current > 30 * 1000) {
+                        appendLocalSystemMessage(
+                          "We have recorded your input and will get back to you soon. Thanks for connecting.",
+                        );
+                        lastTypingAutoSentRef.current = now;
+                      }
+                    }, 30 * 1000);
+                  }
+                }}
                 placeholder="Type a message"
               />
               <button

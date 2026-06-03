@@ -129,6 +129,36 @@
   margin: 0 0 4px;
 }
 
+.chat-widget__bubble.typing {
+  opacity: 0.95;
+  background: #005c4b;
+}
+
+.typing-dots::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  text-align: left;
+  animation: dots 1s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0%,
+  20% {
+    content: "";
+  }
+  40% {
+    content: ".";
+  }
+  60% {
+    content: "..";
+  }
+  80%,
+  100% {
+    content: "...";
+  }
+}
+
 .chat-widget__time {
   font-size: 11px;
   color: rgba(233, 237, 239, 0.6);
