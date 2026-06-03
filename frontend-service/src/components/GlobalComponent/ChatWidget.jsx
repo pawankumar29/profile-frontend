@@ -10,25 +10,9 @@ import {
 import {
   USER_EMAIL_KEY,
   USER_NAME_KEY,
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => { setEmailInput(e.target.value); if (emailError) setEmailError('') }}
-                placeholder="Email Address"
-                required
-                aria-invalid={!!emailError}
-              />
-              {emailError && <div className="chat-widget__field-error">{emailError}</div>}
-
-              <input
-                type="text"
-                value={phoneInput}
-                onChange={(e) => { setPhoneInput(e.target.value); if (phoneError) setPhoneError('') }}
-                placeholder="Phone Number"
-                required
-                aria-invalid={!!phoneError}
-              />
-              {phoneError && <div className="chat-widget__field-error">{phoneError}</div>}
+  USER_COUNTRY_KEY,
+  hasStoredUserSession,
+  storeAuthSession,
   USER_PHONE_KEY,
   USER_IS_ADMIN_KEY,
 } from "../../lib/auth";
