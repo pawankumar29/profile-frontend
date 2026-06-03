@@ -7,7 +7,7 @@ export const PROFILE_API_BASE =
 
 export const CHAT_API_BASE =
   import.meta.env.VITE_CHAT_SERVICE_URL ||
-  'http://chat-service:8010'
+  ''
 
 export const PAYMENT_API_BASE =
   import.meta.env.VITE_PAYMENT_SERVICE_URL ||

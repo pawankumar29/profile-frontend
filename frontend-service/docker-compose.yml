@@ -5,10 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_AUTH_SHARED_SECRET: ${VITE_AUTH_SHARED_SECRET:-}
-        VITE_AUTH_PUBLIC_KEY: ${VITE_AUTH_PUBLIC_KEY:-}
-        VITE_ENCRYPTED_AUTH_TTL_MS: ${VITE_ENCRYPTED_AUTH_TTL_MS:-300000}
         VITE_PROFILE_BACKEND_URL: ${VITE_PROFILE_BACKEND_URL:-}
+        VITE_CHAT_SERVICE_URL: ${VITE_CHAT_SERVICE_URL:-}
     ports:
       - "3000:80"
     networks:
