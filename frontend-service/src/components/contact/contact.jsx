@@ -2,16 +2,6 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { profileHttp } from "../../lib/api";
 
-/**
- * FIXED ISSUES IN THIS COMPONENT:
- * 1. Code Formatting: The entire component was on a single line, making it unreadable.
- * 2. JSX Syntax: Replaced "class" with "className" to follow React standards.
- * 3. Controlled Inputs: Added useState to manage form values.
- * 4. Interactive Budget Buttons: Implemented selection logic for the budget tags.
- * 5. Form Logic: Integrated postContact API to send form data to the backend.
- * 6. Accessibility: Fixed boolean attributes like "required" and "readOnly".
- */
-
 function Contact() {
   const { adminData: admin } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
@@ -37,7 +27,6 @@ function Contact() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // clear field-level errors on change
     if (name === "name" && nameError) setNameError("");
     if (name === "email" && emailError) setEmailError("");
     if (name === "message" && messageError) setMessageError("");
@@ -45,7 +34,6 @@ function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // client-side validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let ok = true;
     if (!formData.name.trim() || formData.name.trim().length < 2) {
@@ -107,28 +95,13 @@ function Contact() {
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
             </div>
-                  onChange={handleChange}
+            <div>
               <p className="text-xs text-muted-foreground">Email</p>
               <p className="text-sm font-medium text-foreground truncate max-w-[150px] md:max-w-none">
                 {admin?.email || "hello@devportfolio.com"}
               </p>
             </div>
-                {nameError && <div className="text-destructive text-sm mt-1">{nameError}</div>}
           </div>
-
-          {/* <div className="glass rounded-xl p-4 flex items-center gap-4">
-                        <div className="gradient-bg w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-phone text-primary-foreground">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p className="text-xs text-muted-foreground">Phone</p>
-                            <p className="text-sm font-medium text-foreground">
-                                {admin?.phone || "+1 (555) 123-4567"}
-                            </p>
-                        </div>
-                    </div> */}
 
           <div className="glass rounded-xl p-4 flex items-center gap-4">
             <div className="gradient-bg w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
@@ -149,25 +122,12 @@ function Contact() {
               </svg>
             </div>
             <div>
-                  onChange={handleChange}
+              <p className="text-xs text-muted-foreground">Location</p>
               <p className="text-sm font-medium text-foreground">
                 {admin?.country || admin?.location || "India"}
               </p>
             </div>
           </div>
-                {emailError && <div className="text-destructive text-sm mt-1">{emailError}</div>}
-
-          {/* <a href={`https://wa.me/${admin?.phone?.replace(/\D/g, '') || '15551234567'}`} target="_blank" rel="noopener noreferrer" className="glass rounded-xl p-4 flex items-center gap-4 hover:glow transition-shadow group">
-                        <div className="bg-accent w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle text-primary-foreground">
-                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p className="text-xs text-muted-foreground">Live Chat</p>
-                            <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Chat on WhatsApp</p>
-                        </div>
-                    </a> */}
         </div>
 
         {/* Contact Form */}
@@ -177,14 +137,13 @@ function Contact() {
             className="glass rounded-xl p-6 md:p-8 space-y-5 relative overflow-hidden"
           >
             {error && (
-                onChange={handleChange}
+              <div className="text-destructive text-sm text-center p-2 bg-destructive/10 rounded-lg">
                 {error}
               </div>
             )}
 
             {submitted && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10 transition-all animate-in fade-in">
-              {messageError && <div className="text-destructive text-sm mt-1">{messageError}</div>}
                 <div className="text-center p-6 space-y-2">
                   <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg
@@ -222,6 +181,9 @@ function Contact() {
                 className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition"
                 placeholder="Your name"
               />
+              {nameError && (
+                <div className="text-destructive text-sm mt-1">{nameError}</div>
+              )}
             </div>
 
             <div>
@@ -238,6 +200,9 @@ function Contact() {
                 className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition"
                 placeholder="you@example.com"
               />
+              {emailError && (
+                <div className="text-destructive text-sm mt-1">{emailError}</div>
+              )}
             </div>
 
             <div>
@@ -276,12 +241,17 @@ function Contact() {
                 className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition resize-none"
                 placeholder="Tell me about your project..."
               ></textarea>
+              {messageError && (
+                <div className="text-destructive text-sm mt-1">{messageError}</div>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full gradient-bg py-3 rounded-lg font-semibold text-primary-foreground hover:opacity-90 transition-opacity flex items-center justify-center gap-2 glow ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`w-full gradient-bg py-3 rounded-lg font-semibold text-primary-foreground hover:opacity-90 transition-opacity flex items-center justify-center gap-2 glow ${
+                isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
               {isSubmitting ? "Sending..." : "Send Message"}
               {!isSubmitting && (
