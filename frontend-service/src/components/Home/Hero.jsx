@@ -18,7 +18,7 @@ function Hero() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="max-w-3xl">
                 <span className="inline-block gradient-bg px-3 py-1 rounded-full text-xs font-semibold text-primary-foreground mb-6">
-                  10+ Years Experience • Available for Freelance
+                  5+ Years Experience • Available for Freelance
                 </span>
 
                 <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight">
