@@ -126,7 +126,7 @@ function Hero_two() {
               return (
                 <div
                   key={project.id}
-                  className="glass rounded-2xl overflow-hidden border border-border/50 hover:border-border transition-all hover:shadow-lg cursor-pointer"
+                  className="glass rounded-2xl border border-border/50 hover:border-border transition-all hover:shadow-lg cursor-pointer flex flex-col"
                   onClick={() => {
                     if (project.projectLink) {
                       window.open(project.projectLink, "_blank");
@@ -148,7 +148,7 @@ function Hero_two() {
                     )}
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-6 flex-1 flex flex-col">
                     {/* Project Header */}
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <h3 className="font-display text-lg font-semibold text-foreground break-words flex-1">
@@ -166,10 +166,10 @@ function Hero_two() {
 
                     {/* Full Description */}
                     {project.blog ? (
-                      <div className="mb-4">
+                      <div className="mb-4 flex-1">
                         <p
                           className={`text-sm text-muted-foreground leading-relaxed transition-all ${
-                            expandedProjects[project.id] ? "" : "line-clamp-4"
+                            expandedProjects[project.id] ? "" : "line-clamp-3"
                           }`}
                         >
                           {project.blog}
@@ -189,7 +189,7 @@ function Hero_two() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground/50 mb-4 italic">
+                      <p className="text-sm text-muted-foreground/50 mb-4 italic flex-1">
                         No description available
                       </p>
                     )}
@@ -211,7 +211,7 @@ function Hero_two() {
                                 if (Array.isArray(parsed)) skillsArr = parsed;
                               } catch {}
                             }
-                            return skillsArr.map((skill) => (
+                            return skillsArr.slice(0, 6).map((skill) => (
                               <span
                                 key={skill}
                                 className="px-2.5 py-1 rounded-md text-[11px] font-medium glass text-foreground/80 border border-border/50 hover:border-primary/50 transition-colors"
