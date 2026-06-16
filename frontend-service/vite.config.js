@@ -7,4 +7,22 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8009',
+        changeOrigin: true,
+      },
+      '/socket.io': {
+        target: 'http://localhost:8010',
+        changeOrigin: true,
+        ws: true,
+      },
+      '/payment': {
+        target: 'http://localhost:8011',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/payment/, ''),
+      },
+    },
+  },
 })

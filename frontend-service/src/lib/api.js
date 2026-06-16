@@ -3,7 +3,7 @@ import axios from 'axios'
 export const PROFILE_API_BASE =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_PROFILE_BACKEND_URL ||
-  'http://profile-backend:8009'
+  ''
 
 export const CHAT_API_BASE =
   import.meta.env.VITE_CHAT_SERVICE_URL ||
@@ -11,7 +11,7 @@ export const CHAT_API_BASE =
 
 export const PAYMENT_API_BASE =
   import.meta.env.VITE_PAYMENT_SERVICE_URL ||
-  'http://payment-service:8011'
+  '/payment'
 
 const PROFILE_API_KEY = import.meta.env.VITE_PROFILE_API_KEY || ''
 const CHAT_API_KEY = import.meta.env.VITE_CHAT_API_KEY || ''
