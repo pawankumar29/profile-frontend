@@ -160,9 +160,9 @@ function Hero_two() {
                     </div>
 
                     {/* Project ID */}
-                    <p className="text-xs text-muted-foreground mb-3">
+                    {/* <p className="text-xs text-muted-foreground mb-3">
                       ID: {project.id}
-                    </p>
+                    </p> */}
 
                     {/* Full Description */}
                     {project.blog ? (
