@@ -73,7 +73,12 @@ function ChatWidget() {
   // Socket Initialization
   useEffect(() => {
     if (!isIdentified) return;
-
+    console.log(
+      "Initializing socket for",
+      CHAT_API_BASE,
+      "with auth",
+      JSON.stringify(getSocketAuth()),
+    );
     socketRef.current = io(CHAT_API_BASE, {
       auth: getSocketAuth(),
     });
