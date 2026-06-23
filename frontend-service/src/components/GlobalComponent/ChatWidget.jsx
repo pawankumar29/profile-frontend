@@ -364,6 +364,7 @@ function ChatWidget() {
             ) : (
               <>
                 <h3>Support Chat</h3>
+                <p>We typiclly response within a day for immediate concerns please email us</p>
                 <p>{isIdentified ? "Connected" : "Online"}</p>
               </>
             )}
@@ -480,22 +481,22 @@ function ChatWidget() {
                   const v = event.target.value;
                   setInput(v);
                   // typing debounce: if user stops typing for 40s, send auto-message
-                  if (!isAdmin) {
-                    setIsTyping(true);
-                    if (typingTimerRef.current)
-                      clearTimeout(typingTimerRef.current);
-                    typingTimerRef.current = setTimeout(() => {
-                      setIsTyping(false);
-                      const now = Date.now();
-                      // avoid spamming auto messages more than once per 30s
-                      if (now - lastTypingAutoSentRef.current > 30 * 1000) {
-                        appendLocalSystemMessage(
-                          "We have recorded your input and will get back to you soon. Thanks for connecting.",
-                        );
-                        lastTypingAutoSentRef.current = now;
-                      }
-                    }, 30 * 1000);
-                  }
+                  // if (!isAdmin) {
+                  //   setIsTyping(true);
+                  //   if (typingTimerRef.current)
+                  //     clearTimeout(typingTimerRef.current);
+                  //   typingTimerRef.current = setTimeout(() => {
+                  //     setIsTyping(false);
+                  //     const now = Date.now();
+                  //     // avoid spamming auto messages more than once per 30s
+                  //     if (now - lastTypingAutoSentRef.current > 30 * 1000) {
+                  //       appendLocalSystemMessage(
+                  //         "We have recorded your input and will get back to you soon. Thanks for connecting.",
+                  //       );
+                  //       lastTypingAutoSentRef.current = now;
+                  //     }
+                  //   }, 30 * 1000);
+                  // }
                 }}
                 placeholder="Type a message"
               />
