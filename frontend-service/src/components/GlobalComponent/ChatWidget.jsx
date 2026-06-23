@@ -216,6 +216,7 @@ function ChatWidget() {
         phone: phoneInput,
         country: countryInput,
         isAdmin: setUserData.user?.isAdmin || false,
+        authToken: setUserData.authToken,
       });
       setError("");
     } catch {
@@ -243,6 +244,7 @@ function ChatWidget() {
     if (!trimmed || !activeRoomId) return;
 
     if (socketRef.current && socketRef.current.connected) {
+      
       socketRef.current.emit("sendMessage", {
         roomId: activeRoomId,
         senderType: activeRoomId === userEmail ? "user" : "admin",
@@ -252,15 +254,15 @@ function ChatWidget() {
       });
       setInput("");
       // start pending-reply timer for user messages (auto-reply if no admin response)
-      if (!isAdmin) {
-        if (pendingReplyTimerRef.current)
-          clearTimeout(pendingReplyTimerRef.current);
-        pendingReplyTimerRef.current = setTimeout(() => {
-          appendLocalSystemMessage(
-            "Thanks for connecting — we will reply to you soon. We have saved your message.",
-          );
-        }, 60 * 1000);
-      }
+      // if (!isAdmin) {
+      //   if (pendingReplyTimerRef.current)
+      //     clearTimeout(pendingReplyTimerRef.current);
+      //   pendingReplyTimerRef.current = setTimeout(() => {
+      //     appendLocalSystemMessage(
+      //       "Thanks for connecting — we will reply to you soon. We have saved your message.",
+      //     );
+      //   }, 60 * 1000);
+      // }
     } else {
       setError("Connection lost. Please refresh.");
     }
