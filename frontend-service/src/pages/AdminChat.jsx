@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import './AdminChat.css'
-import { CHAT_API_BASE, getSocketAuth } from '../lib/api'
+import { CHAT_API_BASE, getSocketOptions } from '../lib/api'
 import { USER_EMAIL_KEY } from '../lib/auth'
 
 function AdminChat() {
@@ -15,12 +15,15 @@ function AdminChat() {
   
   const listRef = useRef(null)
   const socketRef = useRef(null)
+  const activeRoomIdRef = useRef('')
+
+  useEffect(() => {
+    activeRoomIdRef.current = activeRoomId
+  }, [activeRoomId])
 
   // Socket Initialization
   useEffect(() => {
-    socketRef.current = io(CHAT_API_BASE, {
-      auth: getSocketAuth(),
-    })
+    socketRef.current = io(CHAT_API_BASE, getSocketOptions())
 
     socketRef.current.on('connect', () => {
       socketRef.current.emit('getRooms')
@@ -36,7 +39,7 @@ function AdminChat() {
     })
 
     socketRef.current.on('newMessage', (msg) => {
-      if (msg.roomId === activeRoomId) {
+      if (msg.roomId === activeRoomIdRef.current) {
         setMessages((prev) => {
           if (prev.find(m => m._id === msg._id)) return prev
           return [...prev, msg]
@@ -52,7 +55,7 @@ function AdminChat() {
     return () => {
       if (socketRef.current) socketRef.current.disconnect()
     }
-  }, [activeRoomId])
+  }, [])
 
   useEffect(() => {
     if (activeRoomId && socketRef.current) {

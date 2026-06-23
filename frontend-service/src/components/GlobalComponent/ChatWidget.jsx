@@ -5,7 +5,7 @@ import {
   PROFILE_API_BASE,
   CHAT_API_BASE,
   withProfileAuth,
-  getSocketAuth,
+  getSocketOptions,
 } from "../../lib/api";
 import {
   USER_EMAIL_KEY,
@@ -76,12 +76,10 @@ function ChatWidget() {
     console.log(
       "Initializing socket for",
       CHAT_API_BASE,
-      "with auth",
-      JSON.stringify(getSocketAuth()),
+      "with options",
+      JSON.stringify(getSocketOptions()),
     );
-    socketRef.current = io(CHAT_API_BASE, {
-      auth: getSocketAuth(),
-    });
+    socketRef.current = io(CHAT_API_BASE, getSocketOptions());
 
     socketRef.current.on("connect", () => {
       socketRef.current.emit("getOnlineUsers");

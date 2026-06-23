@@ -9,6 +9,15 @@ export const CHAT_API_BASE =
   import.meta.env.VITE_CHAT_SERVICE_URL ||
   ''
 
+export const SOCKET_IO_PATH =
+  import.meta.env.VITE_SOCKET_IO_PATH ||
+  '/socket.io'
+
+const SOCKET_IO_TRANSPORTS = (import.meta.env.VITE_SOCKET_IO_TRANSPORTS || 'polling')
+  .split(',')
+  .map((transport) => transport.trim())
+  .filter(Boolean)
+
 export const PAYMENT_API_BASE =
   import.meta.env.VITE_PAYMENT_SERVICE_URL ||
   '/payment'
@@ -54,3 +63,9 @@ export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, h
 export const withChatAuth = (headers = {}) => buildHeaders(CHAT_API_KEY, headers)
 export const withPaymentAuth = (headers = {}) => buildHeaders(PAYMENT_API_KEY, headers)
 export const getSocketAuth = () => ({})
+export const getSocketOptions = () => ({
+  auth: getSocketAuth(),
+  path: SOCKET_IO_PATH,
+  transports: SOCKET_IO_TRANSPORTS,
+  timeout: 10000,
+})
