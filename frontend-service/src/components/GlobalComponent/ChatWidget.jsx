@@ -15,6 +15,7 @@ import {
   storeAuthSession,
   USER_PHONE_KEY,
   USER_IS_ADMIN_KEY,
+  getStoredAuthToken,
 } from "../../lib/auth";
 
 function ChatWidget() {
@@ -73,13 +74,20 @@ function ChatWidget() {
   // Socket Initialization
   useEffect(() => {
     if (!isIdentified) return;
+    if (!getStoredAuthToken()) {
+      setIsIdentified(false);
+      setError("Your chat session expired. Please enter your details again.");
+      return;
+    }
+
+    const socketOptions = getSocketOptions();
     console.log(
       "Initializing socket for",
       CHAT_API_BASE,
       "with options",
-      JSON.stringify(getSocketOptions()),
+      JSON.stringify(socketOptions),
     );
-    socketRef.current = io(CHAT_API_BASE, getSocketOptions());
+    socketRef.current = io(CHAT_API_BASE, socketOptions);
 
     socketRef.current.on("connect", () => {
       socketRef.current.emit("getOnlineUsers");
@@ -136,14 +144,14 @@ function ChatWidget() {
     });
 
     socketRef.current.on("connect_error", (err) => {
-      console.error("Admin Socket Connect Error:", err);
+      console.error("Socket Connect Error:", err);
       setError(`Connection Error: ${err.message}`);
     });
 
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [isIdentified, userEmail]);
+  }, [isIdentified, isAdmin, userEmail]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -206,9 +214,9 @@ function ChatWidget() {
       if (!setUserRes.ok) throw new Error("Failed to sync user");
       const setUserData = await setUserRes.json();
 
-      setUserEmail(trimmedEmail);
-      setIsIdentified(true);
-      setIsAdmin(setUserData.user?.isAdmin || false);
+      if (!setUserData.authToken) {
+        throw new Error("Missing chat auth token");
+      }
 
       storeAuthSession({
         email: trimmedEmail,
@@ -218,6 +226,9 @@ function ChatWidget() {
         isAdmin: setUserData.user?.isAdmin || false,
         authToken: setUserData.authToken,
       });
+      setUserEmail(trimmedEmail);
+      setIsAdmin(setUserData.user?.isAdmin || false);
+      setIsIdentified(true);
       setError("");
     } catch {
       setError("Identification failed. Please try again.");
@@ -233,7 +244,6 @@ function ChatWidget() {
     if (socketRef.current) {
       socketRef.current.emit("joinRoom", {
         roomId,
-        userEmail,
       });
     }
   };

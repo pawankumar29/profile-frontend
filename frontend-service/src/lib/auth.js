@@ -18,9 +18,14 @@ export const storeAuthSession = ({ email, name, phone, country, isAdmin, authTok
   if (authToken) sessionStorage.setItem(USER_AUTH_TOKEN_KEY, authToken)
 }
 
+export const getStoredAuthToken = () => {
+  if (!isBrowser) return ''
+  return sessionStorage.getItem(USER_AUTH_TOKEN_KEY) || ''
+}
+
 export const hasStoredUserSession = () => {
   if (!isBrowser) return false
-  return !!sessionStorage.getItem(USER_EMAIL_KEY) && !!sessionStorage.getItem(USER_AUTH_TOKEN_KEY)
+  return !!sessionStorage.getItem(USER_EMAIL_KEY) && !!getStoredAuthToken()
 }
 
 export {

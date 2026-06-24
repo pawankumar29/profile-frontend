@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import './AdminChat.css'
 import { CHAT_API_BASE, getSocketOptions } from '../lib/api'
-import { USER_EMAIL_KEY } from '../lib/auth'
+import { USER_EMAIL_KEY, getStoredAuthToken } from '../lib/auth'
 
 function AdminChat() {
   const [rooms, setRooms] = useState([])
@@ -23,6 +23,11 @@ function AdminChat() {
 
   // Socket Initialization
   useEffect(() => {
+    if (!getStoredAuthToken()) {
+      setError('Admin chat session expired. Please identify yourself again from the chat widget.')
+      return
+    }
+
     socketRef.current = io(CHAT_API_BASE, getSocketOptions())
 
     socketRef.current.on('connect', () => {
@@ -61,7 +66,6 @@ function AdminChat() {
     if (activeRoomId && socketRef.current) {
       socketRef.current.emit('joinRoom', {
         roomId: activeRoomId,
-        userEmail: adminEmail,
       })
     }
   }, [activeRoomId, adminEmail])

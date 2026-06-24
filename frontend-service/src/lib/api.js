@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { USER_AUTH_TOKEN_KEY } from './auth'
+import { getStoredAuthToken } from './auth'
 
 export const PROFILE_API_BASE =
   import.meta.env.VITE_API_URL ||
@@ -64,9 +64,7 @@ export const withProfileAuth = (headers = {}) => buildHeaders(PROFILE_API_KEY, h
 export const withChatAuth = (headers = {}) => buildHeaders(CHAT_API_KEY, headers)
 export const withPaymentAuth = (headers = {}) => buildHeaders(PAYMENT_API_KEY, headers)
 export const getSocketAuth = () => {
-  if (typeof window === 'undefined') return {}
-
-  const token = sessionStorage.getItem(USER_AUTH_TOKEN_KEY)
+  const token = getStoredAuthToken()
   return token ? { token } : {}
 }
 export const getSocketOptions = () => ({
