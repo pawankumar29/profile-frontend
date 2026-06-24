@@ -211,11 +211,18 @@ function ChatWidget() {
         }),
       });
 
-      if (!setUserRes.ok) throw new Error("Failed to sync user");
-      const setUserData = await setUserRes.json();
+      const setUserData = await setUserRes
+        .json()
+        .catch(() => ({}));
+
+      if (!setUserRes.ok) {
+        throw new Error(setUserData.message || "Failed to sync user");
+      }
 
       if (!setUserData.authToken) {
-        throw new Error("Missing chat auth token");
+        throw new Error(
+          "Profile backend did not return a chat auth token. Restart/deploy profile-backend with chat auth enabled.",
+        );
       }
 
       storeAuthSession({
@@ -230,8 +237,9 @@ function ChatWidget() {
       setIsAdmin(setUserData.user?.isAdmin || false);
       setIsIdentified(true);
       setError("");
-    } catch {
-      setError("Identification failed. Please try again.");
+    } catch (err) {
+      console.error("Chat identification failed:", err);
+      setError(err.message || "Identification failed. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -3,10 +3,10 @@ import React from "react";
 function Hero() {
   return (
     <>
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-16 overflow-x-hidden">
 
         {/* HERO SECTION */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[auto] lg:min-h-[90vh] flex items-center overflow-hidden py-14 lg:py-0">
 
           {/* Background Blur Effects */}
           <div className="absolute inset-0 pointer-events-none">
@@ -14,26 +14,26 @@ function Hero() {
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-accent/10 blur-[120px]"></div>
           </div>
 
-          <div className="container mx-auto px-6 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="max-w-3xl">
+          <div className="container mx-auto px-5 sm:px-6 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+              <div className="max-w-3xl text-center lg:text-left">
                 <span className="inline-block gradient-bg px-3 py-1 rounded-full text-xs font-semibold text-primary-foreground mb-6">
                   5+ Years Experience • Available for Freelance
                 </span>
 
-                <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight">
+                <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
                   I build <span className="gradient-text">digital experiences</span>{" "}
                   that matter.
                 </h1>
 
-                <p className="text-muted-foreground text-lg md:text-xl mt-6 max-w-xl">
+                <p className="text-muted-foreground text-base sm:text-lg md:text-xl mt-6 max-w-xl mx-auto lg:mx-0">
                   Full‑Stack (MERN) Developer with strong Salesforce (LWC, Apex, SOQL)
                   and Blockchain (Web3.js, Ethers.js) experience—shipping production‑ready
                   apps with SQL/PostgreSQL, Docker, and third‑party API integrations.
                 </p>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-wrap gap-4 mt-8">
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                   <a
                     href="/contact"
                     className="gradient-bg px-8 py-3.5 rounded-lg font-semibold text-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-2 glow"
@@ -64,12 +64,12 @@ function Hero() {
                 </div>
               </div>
 
-              <div className="flex justify-center lg:justify-end">
-                <div className="glass rounded-3xl p-4 border border-border/40 max-w-[420px] w-full">
+              <div className="flex justify-center lg:justify-end w-full">
+                <div className="glass rounded-3xl p-3 sm:p-4 border border-border/40 w-full max-w-[min(100%,22rem)] sm:max-w-[420px] mx-auto lg:mx-0">
                   <img
                     src="https://pawan-portfolio-static-bucket.s3.us-east-2.amazonaws.com/static-image/pawan-portfolio-image.png"
                     alt="Profile"
-                    className="w-full h-auto object-contain rounded-2xl"
+                    className="w-full aspect-[4/5] object-cover object-center rounded-2xl"
                     loading="lazy"
                   />
                 </div>
