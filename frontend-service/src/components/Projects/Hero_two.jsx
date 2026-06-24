@@ -71,6 +71,24 @@ function Hero_two() {
     }));
   };
 
+  const getProjectLink = (project) => {
+    const rawLink =
+      project.projectLink ||
+      project.projectUrl ||
+      project.liveUrl ||
+      project.websiteUrl ||
+      project.webUrl ||
+      project.demoUrl ||
+      project.url ||
+      project.link ||
+      "";
+    const link = String(rawLink).trim();
+
+    if (!link) return "";
+    if (/^(https?:)?\/\//i.test(link)) return link;
+    return `https://${link}`;
+  };
+
   return (
     <div>
       <div className="flex flex-wrap justify-center gap-2 mb-12">
@@ -123,13 +141,16 @@ function Hero_two() {
               const category = categoryById.get(
                 String(project.projectCategoryId),
               );
+              const projectLink = getProjectLink(project);
               return (
                 <div
                   key={project.id}
-                  className="glass rounded-2xl border border-border/50 hover:border-border transition-all hover:shadow-lg cursor-pointer flex flex-col"
+                  className={`glass rounded-2xl border border-border/50 hover:border-border transition-all hover:shadow-lg flex flex-col ${
+                    projectLink ? "cursor-pointer" : ""
+                  }`}
                   onClick={() => {
-                    if (project.projectLink) {
-                      window.open(project.projectLink, "_blank");
+                    if (projectLink) {
+                      window.location.href = projectLink;
                     }
                   }}
                 >
@@ -230,11 +251,14 @@ function Hero_two() {
                         Category: {category?.type || "Uncategorized"}
                       </span>
                       <a
-                        href={project.projectLink || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={projectLink || undefined}
+                        aria-disabled={!projectLink}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                        className={`text-xs font-semibold transition-colors ${
+                          projectLink
+                            ? "text-primary hover:text-primary/80"
+                            : "text-muted-foreground/50 pointer-events-none"
+                        }`}
                       >
                         View More →
                       </a>

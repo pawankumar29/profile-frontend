@@ -384,8 +384,12 @@ function ChatWidget() {
             ) : (
               <>
                 <h3>Support Chat</h3>
-                <p>We typiclly response within a day for immediate concerns please email us</p>
-                <p>{isIdentified ? "Connected" : "Online"}</p>
+                <p className="chat-widget__status-note">
+                  Usually replies within a day. For urgent queries, email us.
+                </p>
+                <p className="chat-widget__status">
+                  {isIdentified ? "Connected" : "Online"}
+                </p>
               </>
             )}
           </div>
