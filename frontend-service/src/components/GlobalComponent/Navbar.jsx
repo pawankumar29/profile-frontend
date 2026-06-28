@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink } from "react-router-dom";
 
 import './GlobalComponent.css'
@@ -28,6 +28,7 @@ const NavItem = React.memo(({ to, end = false, children }) => (
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const navRef = useRef(null);
 
   const hireMeClass = useCallback(() => 
     "gradient-bg px-5 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
@@ -47,9 +48,22 @@ function Navbar() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  useEffect(() => {
+    if (!isMobileOpen) return undefined;
+
+    const onPointerDown = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isMobileOpen]);
+
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 glass">
+      <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           
           {/* Logo */}
