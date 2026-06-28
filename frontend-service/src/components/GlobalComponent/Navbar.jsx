@@ -28,7 +28,8 @@ const NavItem = React.memo(({ to, end = false, children }) => (
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const navRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   const hireMeClass = useCallback(() => 
     "gradient-bg px-5 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
@@ -51,19 +52,27 @@ function Navbar() {
   useEffect(() => {
     if (!isMobileOpen) return undefined;
 
-    const onPointerDown = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) {
+    const onOutsideClick = (e) => {
+      const target = e.target;
+      const clickedButton = menuButtonRef.current?.contains(target);
+      const clickedMenu = mobileMenuRef.current?.contains(target);
+
+      if (!clickedButton && !clickedMenu) {
         setIsMobileOpen(false);
       }
     };
 
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
+    document.addEventListener('mousedown', onOutsideClick);
+    document.addEventListener('touchstart', onOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', onOutsideClick);
+      document.removeEventListener('touchstart', onOutsideClick);
+    };
   }, [isMobileOpen]);
 
   return (
     <>
-      <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 glass">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           
           {/* Logo */}
@@ -88,6 +97,7 @@ function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
+            ref={menuButtonRef}
             type="button"
             className="md:hidden text-foreground"
             aria-label="Toggle menu"
@@ -116,7 +126,7 @@ function Navbar() {
 
         {/* Mobile Menu Panel */}
         {isMobileOpen ? (
-          <div className="md:hidden border-t border-border/40">
+          <div ref={mobileMenuRef} className="md:hidden border-t border-border/40">
             <div className="container mx-auto px-6 py-4">
               <div className="glass rounded-2xl p-2">
                 <NavLink
